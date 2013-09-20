@@ -39,14 +39,18 @@
         full-filename
         (conf-filename (merge context {:name "default"}) filename))))
 
-(defn parse-yaml-config-file [context filename]
-  (clj-yaml/parse-string (slurp (conf-filename context filename))))
+(defn generate-config-from-yaml [context filename]
+  (merge 
+    (clj-yaml/parse-string
+      (slurp (conf-filename (merge context {:name "default"}) filename)))
+    (clj-yaml/parse-string
+      (slurp (conf-filename context filename)))))
 
 (defn clusters-conf [context]
-  (parse-yaml-config-file context "clusters.yaml"))
+  (generate-config-from-yaml context "clusters.yaml"))
 
 (defn storm-yaml [context]
-  (parse-yaml-config-file context "storm.yaml"))
+  (generate-config-from-yaml context "storm.yaml"))
 
 (defn storm-log-properties-path [context]
   (conf-filename context "storm.log.properties"))

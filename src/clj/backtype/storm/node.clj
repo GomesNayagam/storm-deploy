@@ -40,14 +40,21 @@
         (conf-filename (merge context {:name "default"}) filename))))
 
 (defn generate-config-from-yaml [context filename]
-  (merge 
-    (clj-yaml/parse-string
-      (slurp (conf-filename (merge context {:name "default"}) filename)))
-    (clj-yaml/parse-string
-      (slurp (conf-filename context filename)))))
+  "Get default version of config, apply named conf if it exists, and apply commandline hash if supplied"
+  (let [conf-name (first (clojure.string/split filename #"[.]"))
+        conf-hash (context (keyword (str conf-name "-config")))]
+    (merge 
+      (clj-yaml/parse-string
+        (slurp (conf-filename (merge context {:name "default"}) filename)))
+      (clj-yaml/parse-string
+        (slurp (conf-filename context filename)))
+      conf-hash)))
 
 (defn clusters-conf [context]
-  (generate-config-from-yaml context "clusters.yaml"))
+  (let [conf (generate-config-from-yaml context "clusters.yaml")]
+    (println "clusters.yaml")
+    (println conf)
+    conf))
 
 (defn storm-yaml [context]
   (generate-config-from-yaml context "storm.yaml"))
